@@ -16,21 +16,23 @@ jobs:
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu          # <-- EC2 username
+          username: ubuntu          # Your EC2 username
           key: ${{ secrets.EC2_KEY }}
           script: |
             cd devops-project
-            # Ensure latest code
+
+            # Ensure we have the latest code
             git reset --hard
             git pull origin main
-            # Stop containers
+
+            # Stop running containers
             docker-compose down || true
+
             # Rebuild images without cache
             docker-compose build --no-cache
+
             # Start containers
             docker-compose up -d
-            # Verify Flask is binding to all interfaces
-            docker exec -it app sed -i 's/app.run(/app.run(host="0.0.0.0", /' app/app.py
-            # Restart container again to apply host binding
-            docker-compose down
-            docker-compose up -d
+
+            # Optional: show running containers
+            docker ps
