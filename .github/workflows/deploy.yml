@@ -7,16 +7,25 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu          # <-- change here
+          username: ubuntu          # <-- EC2 username
           key: ${{ secrets.EC2_KEY }}
           script: |
             cd devops-project
+            # Ensure latest code
+            git reset --hard
+            git pull origin main
+            # Stop containers
             docker-compose down || true
-            docker-compose up -d --build
+            # Rebuild images without cache
+            docker-compose build --no-cache
+            # Start containers
+            docker-compose up -d
