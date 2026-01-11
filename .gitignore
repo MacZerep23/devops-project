@@ -176,3 +176,5 @@ __marimo__/
 "*.pyo"
 "*.env"
 "*.DS_Store"
+
+terraform/.terraform/
